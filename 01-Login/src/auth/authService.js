@@ -1,14 +1,21 @@
+/* eslint-disable */
 import auth0 from "auth0-js";
 import { EventEmitter } from "events";
 import authConfig from "../../auth_config.json";
+import {
+  Stitch,
+  CustomCredential,
+} from 'mongodb-stitch-browser-sdk';
 
 const webAuth = new auth0.WebAuth({
   domain: authConfig.domain,
   redirectUri: `${window.location.origin}/callback`,
   clientID: authConfig.clientId,
   responseType: "id_token",
-  scope: "openid profile email"
+  scope: "openid"
 });
+
+const client = Stitch.initializeDefaultAppClient(authConfig.stitchBackend);
 
 const localStorageKey = "loggedIn";
 const loginEvent = "loginEvent";
@@ -40,12 +47,26 @@ class AuthService extends EventEmitter {
 
   handleAuthentication() {
     return new Promise((resolve, reject) => {
-      webAuth.parseHash((err, authResult) => {
-        if (err) {
+      webAuth.parseHash(function(err, authResult) {
+        
+        if(authResult && authResult.idToken) {
+          // window.location.hash = '';
+          console.log(`authResult = ${JSON.stringify(authResult)}`);
+          const credential = new CustomCredential(authResult.idToken);
+
+          
+          console.log(`credential = ${JSON.stringify(credential.material)}`);
+          client.auth.loginWithCredential(
+            credential
+          ).then(user => {
+            
+            console.log(`user = ${JSON.stringify(user)}`);
+
+            resolve(user.id);
+          });
+        } else if (err) {
+          console.error(`Auth0 error: ${JSON.stringify(err)}`);
           reject(err);
-        } else {
-          this.localLogin(authResult);
-          resolve(authResult.idToken);
         }
       });
     });

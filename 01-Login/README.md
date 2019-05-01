@@ -21,7 +21,8 @@ To do this, first copy `auth_config.sample.json` into a new file in the same fol
 ```json
 {
   "domain": "<YOUR AUTH0 DOMAIN>",
-  "clientId": "<YOUR AUTH0 CLIENT ID>"
+  "clientId": "<YOUR AUTH0 CLIENT ID>",
+  "stitchBackend": "<YOUR STITCH APP ID>"
 }
 ```
 
