@@ -47,6 +47,7 @@ class AuthService extends EventEmitter {
 
   handleAuthentication() {
     return new Promise((resolve, reject) => {
+      var _this = this;
       webAuth.parseHash(function(err, authResult) {
         
         if(authResult && authResult.idToken) {
@@ -60,8 +61,8 @@ class AuthService extends EventEmitter {
             credential
           ).then(user => {
             
-            console.log(`user = ${JSON.stringify(user)}`);
-
+            console.log(`user = ${JSON.stringify(user.id)}`);
+            _this.localLogin(authResult);
             resolve(user.id);
           });
         } else if (err) {
